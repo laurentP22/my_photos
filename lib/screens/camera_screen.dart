@@ -12,6 +12,7 @@ class CameraScreen extends StatefulWidget {
 
 class _CameraScreenState extends State<CameraScreen>
     with WidgetsBindingObserver {
+  final globalKey = GlobalKey<ScaffoldState>();
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
@@ -40,6 +41,7 @@ class _CameraScreenState extends State<CameraScreen>
   @override
   Widget build(BuildContext context) => BlocBuilder<CameraBloc, CameraState>(
       builder: (_, state) => Scaffold(
+            key: globalKey,
             backgroundColor: Colors.black,
             appBar: AppBar(title: Text("Camera")),
             body: BlocListener<CameraBloc, CameraState>(
@@ -47,7 +49,7 @@ class _CameraScreenState extends State<CameraScreen>
                   if (state is CameraCaptureSuccess)
                     Navigator.of(context).pop(state.path);
                   else if (state is CameraCaptureFailure)
-                    Scaffold.of(context).showSnackBar(SnackBar(
+                    globalKey.currentState.showSnackBar(SnackBar(
                       key: MyPhotosKeys.errorSnackBar,
                       content: Text(state.error),
                     ));
