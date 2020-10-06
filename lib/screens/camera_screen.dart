@@ -13,6 +13,7 @@ class CameraScreen extends StatefulWidget {
 class _CameraScreenState extends State<CameraScreen>
     with WidgetsBindingObserver {
   final globalKey = GlobalKey<ScaffoldState>();
+
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
@@ -39,33 +40,30 @@ class _CameraScreenState extends State<CameraScreen>
   }
 
   @override
-  Widget build(BuildContext context) => BlocBuilder<CameraBloc, CameraState>(
+  Widget build(BuildContext context) => BlocConsumer<CameraBloc, CameraState>(
+      listener: (_, state) {
+        if (state is CameraCaptureSuccess)
+          Navigator.of(context).pop(state.path);
+        else if (state is CameraCaptureFailure)
+          globalKey.currentState.showSnackBar(SnackBar(
+            key: MyPhotosKeys.errorSnackBar,
+            content: Text(state.error),
+          ));
+      },
       builder: (_, state) => Scaffold(
             key: globalKey,
             backgroundColor: Colors.black,
             appBar: AppBar(title: Text("Camera")),
-            body: BlocListener<CameraBloc, CameraState>(
-                listener: (_, state) {
-                  if (state is CameraCaptureSuccess)
-                    Navigator.of(context).pop(state.path);
-                  else if (state is CameraCaptureFailure)
-                    globalKey.currentState.showSnackBar(SnackBar(
-                      key: MyPhotosKeys.errorSnackBar,
-                      content: Text(state.error),
-                    ));
-                },
-                child: state is CameraReady
-                    ? Container(
-                        key: MyPhotosKeys.cameraPreviewScreen,
-                        child: CameraPreview(
-                            BlocProvider.of<CameraBloc>(context)
-                                .getController()))
-                    : state is CameraFailure
-                        ? Error(
-                            key: MyPhotosKeys.errorScreen, message: state.error)
-                        : Container(
-                            key: MyPhotosKeys.emptyContainerScreen,
-                          )),
+            body: state is CameraReady
+                ? Container(
+                    key: MyPhotosKeys.cameraPreviewScreen,
+                    child: CameraPreview(
+                        BlocProvider.of<CameraBloc>(context).getController()))
+                : state is CameraFailure
+                    ? Error(key: MyPhotosKeys.errorScreen, message: state.error)
+                    : Container(
+                        key: MyPhotosKeys.emptyContainerScreen,
+                      ),
             floatingActionButton: state is CameraReady
                 ? FloatingActionButton(
                     child: Icon(Icons.camera_alt),
