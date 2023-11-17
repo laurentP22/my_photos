@@ -12,14 +12,13 @@ class PhotosInitial extends PhotosState {}
 class PhotosLoadInProgress extends PhotosState {}
 
 class PhotosLoadSuccess extends PhotosState {
+  const PhotosLoadSuccess({required this.photos});
   final List<Photo> photos;
-  PhotosLoadSuccess({@required this.photos});
 }
 
 class PhotosLoadFailure extends PhotosState {
+  const PhotosLoadFailure({this.error = "PhotosFailure"});
   final String error;
-
-  PhotosLoadFailure({this.error = "PhotosFailure"});
 
   @override
   List<Object> get props => [error];
