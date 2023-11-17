@@ -1,12 +1,11 @@
-
 import 'package:flutter/material.dart';
 
 class MyPhotosKeys {
-  static const photosGridScreen = const Key('__photosGridScreen__');
-  static const photoCard = const Key('__photoCard__');
-  static const loadingScreen = const Key('__loadingScreen__');
-  static const cameraPreviewScreen = const Key('__cameraPreviewScreen__');
-  static const emptyContainerScreen = const Key('__emptyContainerScreen__');
-  static const errorScreen = const Key('__errorScreen__');
-  static const errorSnackBar = const Key('__errorSnackBar__');
+  static const photosGridScreen = Key('__photosGridScreen__');
+  static const photoCard = Key('__photoCard__');
+  static const loadingScreen = Key('__loadingScreen__');
+  static const cameraPreviewScreen = Key('__cameraPreviewScreen__');
+  static const emptyContainerScreen = Key('__emptyContainerScreen__');
+  static const errorScreen = Key('__errorScreen__');
+  static const errorSnackBar = Key('__errorSnackBar__');
 }

@@ -1,17 +1,20 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+
+import 'package:camera/camera.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:my_photos/blocs/camera/camera_bloc.dart';
 import 'package:my_photos/keys.dart';
 import 'package:my_photos/widgets/error.dart';
 
 class CameraScreen extends StatefulWidget {
+  const CameraScreen({super.key});
+
   @override
-  _CameraScreenState createState() => _CameraScreenState();
+  State<CameraScreen> createState() => _CameraScreenState();
 }
 
-class _CameraScreenState extends State<CameraScreen>
-    with WidgetsBindingObserver {
+class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver {
   final globalKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -34,31 +37,36 @@ class _CameraScreenState extends State<CameraScreen>
     // App state changed before we got the chance to initialize.
     if (!bloc.isInitialized()) return;
 
-    if (state == AppLifecycleState.inactive)
+    if (state == AppLifecycleState.inactive) {
       bloc.add(CameraStopped());
-    else if (state == AppLifecycleState.resumed) bloc.add(CameraInitialized());
+    } else if (state == AppLifecycleState.resumed) {
+      bloc.add(CameraInitialized());
+    }
   }
 
   @override
   Widget build(BuildContext context) => BlocConsumer<CameraBloc, CameraState>(
       listener: (_, state) {
-        if (state is CameraCaptureSuccess)
+        if (state is CameraCaptureSuccess) {
           Navigator.of(context).pop(state.path);
-        else if (state is CameraCaptureFailure)
-          globalKey.currentState.showSnackBar(SnackBar(
+        } else if (state is CameraCaptureFailure) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             key: MyPhotosKeys.errorSnackBar,
             content: Text(state.error),
           ));
+        }
       },
       builder: (_, state) => Scaffold(
             key: globalKey,
             backgroundColor: Colors.black,
-            appBar: AppBar(title: Text("Camera")),
+            appBar: AppBar(title: const Text("Camera")),
             body: state is CameraReady
                 ? Container(
                     key: MyPhotosKeys.cameraPreviewScreen,
                     child: CameraPreview(
-                        BlocProvider.of<CameraBloc>(context).getController()))
+                      BlocProvider.of<CameraBloc>(context).getController(),
+                    ),
+                  )
                 : state is CameraFailure
                     ? Error(key: MyPhotosKeys.errorScreen, message: state.error)
                     : Container(
@@ -66,12 +74,10 @@ class _CameraScreenState extends State<CameraScreen>
                       ),
             floatingActionButton: state is CameraReady
                 ? FloatingActionButton(
-                    child: Icon(Icons.camera_alt),
-                    onPressed: () => BlocProvider.of<CameraBloc>(context)
-                        .add(CameraCaptured()),
+                    child: const Icon(Icons.camera_alt),
+                    onPressed: () => BlocProvider.of<CameraBloc>(context).add(CameraCaptured()),
                   )
                 : Container(),
-            floatingActionButtonLocation:
-                FloatingActionButtonLocation.centerFloat,
+            floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
           ));
 }

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class Error extends StatelessWidget {
   final String message;
 
-  const Error({Key key, this.message = "Camera Error"}) : super(key: key);
+  const Error({Key? key, this.message = "Camera Error"}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -11,11 +11,12 @@ class Error extends StatelessWidget {
       color: Colors.white,
       width: double.infinity,
       child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error),
-            Container(child: Text(message))
-          ]),
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error),
+          Text(message),
+        ],
+      ),
     );
   }
 }

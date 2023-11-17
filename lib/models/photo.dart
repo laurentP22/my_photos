@@ -1,15 +1,17 @@
-class Photo{
-  int id;
-  String name;
-  String path;
+class Photo {
+  final int? id;
+  final String name;
+  final String path;
 
-  Photo({this.id, this.name,this.path});
+  Photo({this.id, required this.name, required this.path});
 
-  Photo.fromMap(Map<String, dynamic> map){
-    this.id = map["id"];
-    this.name = map["name"];
-    this.path = map ["path"];
-  }
+  Photo.fromMap(Map<String, dynamic> map)
+      : id = map["id"],
+        name = map["name"],
+        path = map["path"];
 
-  Map<String, dynamic> toMap() => {'name': name, 'path': path,};
+  Map<String, Object> toMap() => {
+        'name': name,
+        'path': path,
+      };
 }

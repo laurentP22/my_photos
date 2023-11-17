@@ -1,7 +1,8 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:my_photos/blocs/blocs.dart';
 import 'package:my_photos/blocs/camera/camera_bloc.dart';
 import 'package:my_photos/models/photo.dart';
@@ -11,13 +12,15 @@ import 'package:my_photos/utils/camera_utils.dart';
 class AddScreen extends StatefulWidget {
   static String route = "/addEdit";
 
+  const AddScreen({super.key});
+
   @override
-  _AddScreenState createState() => _AddScreenState();
+  State<AddScreen> createState() => _AddScreenState();
 }
 
 class _AddScreenState extends State<AddScreen> {
   final _textEditingController = TextEditingController();
-  String path;
+  String? path;
 
   @override
   void dispose() {
@@ -26,9 +29,17 @@ class _AddScreenState extends State<AddScreen> {
   }
 
   void savePhoto() {
-    BlocProvider.of<PhotosBloc>(context).add(PhotosAdded(
-        photo: Photo(name: _textEditingController.text, path: path)));
-    Navigator.of(context).pop();
+    if (path != null) {
+      BlocProvider.of<PhotosBloc>(context).add(
+        PhotosAdded(
+          photo: Photo(
+            name: _textEditingController.text,
+            path: path!,
+          ),
+        ),
+      );
+      Navigator.of(context).pop();
+    }
   }
 
   void openCamera() {
@@ -37,9 +48,8 @@ class _AddScreenState extends State<AddScreen> {
         context,
         MaterialPageRoute(
           builder: (_) => BlocProvider(
-            create: (_) => CameraBloc(cameraUtils: CameraUtils())
-              ..add(CameraInitialized()),
-            child: CameraScreen(),
+            create: (_) => CameraBloc(cameraUtils: CameraUtils())..add(CameraInitialized()),
+            child: const CameraScreen(),
           ),
         )).then((value) => setState(() => path = value));
   }
@@ -47,12 +57,12 @@ class _AddScreenState extends State<AddScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomPadding: false,
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
-          title: Text("Add photo"),
+          title: const Text("Add photo"),
           actions: [
             IconButton(
-              icon: Icon(Icons.save),
+              icon: const Icon(Icons.save),
               onPressed: () => savePhoto(),
             )
           ],
@@ -62,7 +72,7 @@ class _AddScreenState extends State<AddScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 "Name",
                 style: TextStyle(fontSize: 20),
               ),
@@ -72,22 +82,26 @@ class _AddScreenState extends State<AddScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     "Photo",
                     style: TextStyle(fontSize: 20),
                   ),
                   IconButton(
-                    icon: Icon(Icons.add),
+                    icon: const Icon(Icons.add),
                     onPressed: () => openCamera(),
                   )
                 ],
               ),
               Expanded(
-                child: path != null
-                    ? Container(
-                        width: double.infinity,
-                        child: Image.file(File(path), fit: BoxFit.cover))
-                    : Container(),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: path != null
+                      ? Image.file(
+                          File(path!),
+                          fit: BoxFit.cover,
+                        )
+                      : Container(),
+                ),
               ),
             ],
           ),

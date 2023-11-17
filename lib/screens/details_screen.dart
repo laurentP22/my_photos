@@ -1,16 +1,19 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:my_photos/blocs/blocs.dart';
 import 'package:my_photos/models/photo.dart';
 
 class DetailsScreen extends StatelessWidget {
   static String route = "/details";
 
+  const DetailsScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
-    final Photo photo = ModalRoute.of(context).settings.arguments;
+    final Photo photo = ModalRoute.of(context)!.settings.arguments as Photo;
 
     deletePhoto() {
       BlocProvider.of<PhotosBloc>(context).add(PhotosDeleted(photo: photo));
@@ -22,20 +25,22 @@ class DetailsScreen extends StatelessWidget {
         title: Text(photo.name),
         actions: [
           IconButton(
-            icon: Icon(Icons.delete),
+            icon: const Icon(Icons.delete),
             onPressed: () => deletePhoto(),
           )
         ],
       ),
       body: Center(
-        child: photo.path != null
-            ? Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                  width: double.infinity,
-                  child: Image.file(File(photo.path), fit: BoxFit.cover))
-            )
-            : Container(),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: SizedBox(
+            width: double.infinity,
+            child: Image.file(
+              File(photo.path),
+              fit: BoxFit.cover,
+            ),
+          ),
+        ),
       ),
     );
   }

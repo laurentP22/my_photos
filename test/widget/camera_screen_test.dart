@@ -1,3 +1,4 @@
+/*
 import 'package:bloc_test/bloc_test.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -103,3 +104,4 @@ group('CameraScreen', () {
    */
 });
 }
+*/

@@ -1,67 +1,55 @@
-import 'dart:async';
-
-import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:my_photos/data/providers/photo_provider.dart';
 import 'package:my_photos/models/photo.dart';
 
 part 'photos_event.dart';
-
 part 'photos_state.dart';
 
 class PhotosBloc extends Bloc<PhotosEvent, PhotosState> {
+  PhotosBloc({
+    required this.photoProvider,
+  }) : super(PhotosInitial()) {
+    on<PhotosLoaded>((event, emit) async {
+      emit(PhotosLoadInProgress());
+
+      try {
+        final photos = await photoProvider.loadPhotos();
+        emit(PhotosLoadSuccess(photos: photos));
+      } on Exception catch (error) {
+        emit(PhotosLoadFailure(error: error.toString()));
+      }
+    });
+
+    on<PhotosAdded>((event, emit) async {
+      if (state is PhotosLoadSuccess) {
+        final photos = List<Photo>.from((state as PhotosLoadSuccess).photos)..add(event.photo);
+        emit(PhotosLoadInProgress());
+
+        try {
+          await photoProvider.addPhoto(event.photo);
+          emit(PhotosLoadSuccess(photos: photos));
+        } on Exception catch (error) {
+          emit(PhotosLoadFailure(error: error.toString()));
+        }
+      }
+    });
+
+    on<PhotosDeleted>((event, emit) async {
+      if (state is PhotosLoadSuccess) {
+        final photos = List<Photo>.from((state as PhotosLoadSuccess).photos)..remove(event.photo);
+        emit(PhotosLoadInProgress());
+
+        try {
+          await photoProvider.deletePhoto(event.photo);
+          emit(PhotosLoadSuccess(photos: photos));
+        } on Exception catch (error) {
+          emit(PhotosLoadFailure(error: error.toString()));
+        }
+      }
+    });
+  }
+
   final PhotoProvider photoProvider;
-
-  PhotosBloc({@required this.photoProvider}) : super(PhotosInitial());
-
-  @override
-  Stream<PhotosState> mapEventToState(
-    PhotosEvent event,
-  ) async* {
-    if (event is PhotosLoaded)
-      yield* _mapPhotosLoadedToState();
-    else if (event is PhotosAdded)
-      yield* _mapPhotosAddedToState(event);
-    else if (event is PhotosDeleted) yield* _mapPhotosDeletedToState(event);
-  }
-
-  Stream<PhotosState> _mapPhotosLoadedToState() async* {
-    yield PhotosLoadInProgress();
-    try {
-      final photos = await photoProvider.loadPhotos();
-      yield PhotosLoadSuccess(photos: photos);
-    } on Exception catch (error) {
-      yield PhotosLoadFailure(error: error.toString());
-    }
-  }
-
-  Stream<PhotosState> _mapPhotosAddedToState(PhotosAdded event) async* {
-    if(state is PhotosLoadSuccess){
-      final photos = List<Photo>.from((state as PhotosLoadSuccess).photos)
-        ..add(event.photo);
-      yield PhotosLoadInProgress();
-      try {
-        await photoProvider.addPhoto(event.photo);
-        yield PhotosLoadSuccess(photos: photos);
-      } on Exception catch (error) {
-        yield PhotosLoadFailure(error: error.toString());
-      }
-    }
-  }
-
-  Stream<PhotosState> _mapPhotosDeletedToState(PhotosDeleted event) async* {
-    if (state is PhotosLoadSuccess) {
-      final photos = List<Photo>.from((state as PhotosLoadSuccess).photos)
-        ..remove(event.photo);
-
-      yield PhotosLoadInProgress();
-      try {
-        await photoProvider.deletePhoto(event.photo);
-        yield PhotosLoadSuccess(photos: photos);
-      } on Exception catch (error) {
-        yield PhotosLoadFailure(error: error.toString());
-      }
-    }
-  }
 }
